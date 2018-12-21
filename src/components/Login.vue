@@ -1,6 +1,6 @@
 <template>
-    <div class="login">
-      <!--
+  <div class="login">
+    <!--
         el-form : 整个form组件
         :model="form"  : 必须提供的对象
         label-width="80px"  : label宽度
@@ -10,21 +10,21 @@
         表单校验
           1. 给el-form传入一个rules规则
           2. 要给el-form-item 添加一个prop属性,值就是字段名
-       -->
-      <el-form status-icon ref="form" :model="form" :rules="rules" label-width="80px">
-        <img src="@/assets/avatar.jpg" alt="">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username"  placeholder="请输入用户名"></el-input>
-        </el-form-item>
-          <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password"  type="password" placeholder="请输入密码"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="login">登录</el-button>
-          <el-button @click="reset">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+    -->
+    <el-form status-icon ref="form" :model="form" :rules="rules" label-width="80px">
+      <img src="@/assets/avatar.jpg" alt>
+      <el-form-item label="用户名" prop="username">
+        <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input v-model="form.password" type="password" placeholder="请输入密码"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="login">登录</el-button>
+        <el-button @click="reset">重置</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
 </template>
 
 <script>
@@ -128,7 +128,7 @@ export default {
       border-radius: 50%;
       border: 8px solid #fff;
     }
-     .el-button:nth-child(2) {
+    .el-button:nth-child(2) {
       margin-left: 80px;
     }
   }
