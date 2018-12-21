@@ -80,7 +80,7 @@ export default {
             url: 'http://localhost:8888/api/private/v1/login',
             data: this.form
           }).then(res => {
-            console.log(res.data)
+            // console.log(res.data)
             if (res.data.meta.status === 200) {
               this.$message.success('登录成功')
               // 把后台颁发的token存起来
