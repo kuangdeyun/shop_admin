@@ -76,24 +76,23 @@
 export default {
   methods: {
     // 退出功能
-    logout() {
-      this.$confirm('你确定要退出系统吗?', '温馨提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-        // center: true    // 内容居中布局
-      })
-        .then(() => {
-          // 1. 删除localStorage中的token
-          localStorage.removeItem('token')
-          // 2. 跳到登录页面
-          this.$router.push('/login')
-          // 3. 给一个退出提示
-          this.$message.success('退出成功')
+    async logout() {
+      try {
+        await this.$confirm('你确定要退出系统吗?', '温馨提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+          // center: true    // 内容居中布局
         })
-        .catch(() => {
-          this.$message.info('取消退出')
-        })
+        // 1. 删除localStorage中的token
+        localStorage.removeItem('token')
+        // 2. 跳到登录页面
+        this.$router.push('/login')
+        // 3. 给一个退出提示
+        this.$message.success('退出成功')
+      } catch (e) {
+        this.$message.info('取消退出')
+      }
     }
   }
 }

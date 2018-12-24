@@ -76,38 +76,34 @@ export default {
     },
     login() {
       // 让整个表单校验
-      this.$refs.form.validate(valid => {
+      this.$refs.form.validate(async valid => {
         // valid如果伪true, 就表示通过,  否则不通过
-        if (valid) {
-          // 发送ajax请求, 进行登录
-          this.axios({
-            method: 'post',
-            url: 'login',
-            data: this.form
-          }).then(res => {
-            let {
-              meta: { status, msg },
-              data: { token }
-            } = res
-            if (status === 200) {
-              this.$message.success('登录成功')
-              // 把后台颁发的token存起来
-              localStorage.setItem('token', token)
-              // console.log(res.data.token)
-              // 跳转到Home组件
-              // 参数: 跳转的路径
-              this.$router.push('/home')
-            } else {
-              // 失败的消息  this.$message: 弹出一个消息提示
-              this.$message({
-                message: msg,
-                type: 'error',
-                duration: 2000
-              })
-            }
-          })
+        if (!valid) return false
+        // 发送ajax请求, 进行登录
+        let res = await this.axios({
+          method: 'post',
+          url: 'login',
+          data: this.form
+        })
+        let {
+          meta: { status, msg },
+          data: { token }
+        } = res
+        if (status === 200) {
+          this.$message.success('登录成功')
+          // 把后台颁发的token存起来
+          localStorage.setItem('token', token)
+          // console.log(res.data.token)
+          // 跳转到Home组件
+          // 参数: 跳转的路径
+          this.$router.push('/home')
         } else {
-          return false
+          // 失败的消息  this.$message: 弹出一个消息提示
+          this.$message({
+            message: msg,
+            type: 'error',
+            duration: 2000
+          })
         }
       })
     }

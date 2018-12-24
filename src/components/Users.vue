@@ -198,13 +198,13 @@ export default {
   },
   methods: {
     // 封装axios请求列表数据
-    getUserList() {
+    async getUserList() {
       // axios 如果是get/delete请求, 参数要么直接拼地址栏, 要么放到params中
       //  如果是post/put/patch请求, 参数放到data中
 
       // 除了login请求, 其他所有接口都必须携带token, 要求设置给请求头: Authorization
 
-      this.axios({
+      let res = await this.axios({
         methods: 'get',
         url: 'users',
         params: {
@@ -212,21 +212,16 @@ export default {
           pagenum: this.currentPage,
           pagesize: this.pageSize
         }
-        // headers: {
-        //   Authorization: localStorage.getItem('token')
-        // }
-      }).then(res => {
-        // console.log(res)
-        let {
-          meta: { status },
-          data: { users, total }
-        } = res
-        if (status === 200) {
-          this.userList = users
-          // console.log(this.userList)
-          this.total = total
-        }
       })
+      let {
+        meta: { status },
+        data: { users, total }
+      } = res
+      if (status === 200) {
+        this.userList = users
+        // console.log(this.userList)
+        this.total = total
+      }
     },
     //  根据每页条数渲染列表
     handleSizeChange(val) {
@@ -249,63 +244,52 @@ export default {
       this.getUserList()
     },
     // 删除功能
-    delUser(id) {
-      // console.log(id)
-      // 删除时弹出提示框
-      this.$confirm('您确定要删除吗?', '温馨提示', {
-        type: 'warn'
-      })
-        .then(res => {
-          // 发送axios请求, 删除对应id数据
-          this.axios({
-            method: 'delete',
-            url: `users/${id}`
-            // headers: {
-            //   Authorization: localStorage.getItem('token')
-            // }
-          }).then(res => {
-            // console.log(res)
-            let {
-              meta: { status }
-            } = res
-            if (status === 200) {
-              // 删除成功
-              // 如果发现当前页只有一条数据了, 应该currenPage-1, 渲染上一页
-              if (this.userList.length <= 1 && this.currentPage > 1) {
-                this.currentPage--
-              }
-              // 重新渲染
-              this.getUserList()
-              // 提示消息
-              this.$message.success('删除成功')
-            }
-          })
+    async delUser(id) {
+      try {
+        // console.log(id)
+        // 删除时弹出提示框
+        await this.$confirm('您确定要删除吗?', '温馨提示', {
+          type: 'warn'
         })
-        .catch(() => {
-          this.$message.info('取消删除')
+        // 发送axios请求, 删除对应id数据
+        let res = await this.axios({
+          method: 'delete',
+          url: `users/${id}`
         })
-    },
-    // 更改状态
-    changeState({ id, mg_state: mgState }) {
-      // console.log(user)
-      // 发送ajax请求更改状态
-      this.axios({
-        method: 'put',
-        url: `users/${id}/state/${mgState}`
-        // headers: {
-        //   Authorization: localStorage.getItem('token')
-        // }
-      }).then(res => {
-        // console.log(res)
         let {
           meta: { status }
         } = res
         if (status === 200) {
-          this.$message.success('状态修改成功')
-        } else {
-          this.$message.error('状态修改失败')
+          // 删除成功
+          // 如果发现当前页只有一条数据了, 应该currenPage-1, 渲染上一页
+          if (this.userList.length <= 1 && this.currentPage > 1) {
+            this.currentPage--
+          }
+          // 重新渲染
+          this.getUserList()
+          // 提示消息
+          this.$message.success('删除成功')
         }
+      } catch (e) {
+        this.$message.info('取消删除')
+      }
+    },
+    // 更改状态
+    async changeState({ id, mg_state: mgState }) {
+      // console.log(user)
+      // 发送ajax请求更改状态
+      let res = await this.axios({
+        method: 'put',
+        url: `users/${id}/state/${mgState}`
       })
+      let {
+        meta: { status }
+      } = res
+      if (status === 200) {
+        this.$message.success('状态修改成功')
+      } else {
+        this.$message.error('状态修改失败')
+      }
     },
     // 显示添加对话框
     showAddDialog() {
@@ -314,36 +298,34 @@ export default {
     // 添加用户
     addUser() {
       // 1. 表单校验功能
-      this.$refs.addForm.validate(valid => {
+      this.$refs.addForm.validate(async valid => {
         //   valid 表示表单是否通过校验 , 布尔值
         // console.log(valid)
         if (!valid) return false
         // 2. 发送ajax请求
-        this.axios({
+        let res = await this.axios({
           method: 'post',
           url: 'users',
           data: this.addForm
-        }).then(res => {
-          // console.log(res)
-          let {
-            meta: { status, msg }
-          } = res
-          if (status === 201) {
-            // 如果渲染时要显示新添加用户的那一页被渲染的页数
-            this.total++
-            this.currentPage = Math.ceil(this.total / this.pageSize)
-            // 3. 重新渲染
-            this.getUserList()
-            // 重置表单样式
-            this.$refs.addForm.resetFields()
-            // 隐藏模态框
-            this.addDialogVisible = false
-            // 显示提示信息
-            this.$message.success('添加成功了')
-          } else {
-            this.$message.error(msg)
-          }
         })
+        let {
+          meta: { status, msg }
+        } = res
+        if (status === 201) {
+          // 如果渲染时要显示新添加用户的那一页被渲染的页数
+          this.total++
+          this.currentPage = Math.ceil(this.total / this.pageSize)
+          // 3. 重新渲染
+          this.getUserList()
+          // 重置表单样式
+          this.$refs.addForm.resetFields()
+          // 隐藏模态框
+          this.addDialogVisible = false
+          // 显示提示信息
+          this.$message.success('添加成功了')
+        } else {
+          this.$message.error(msg)
+        }
       })
     },
     // 显示修改用户的对话框
@@ -358,31 +340,29 @@ export default {
     // 更新表格修改的数据
     updateUser() {
       // 表单校验
-      this.$refs.editForm.validate(valid => {
+      this.$refs.editForm.validate(async valid => {
         // console.log(valid)
         if (!valid) return false
-        this.axios({
+        let res = await this.axios({
           method: 'put',
           url: `users/${this.editForm.id}`,
           data: this.editForm
-        }).then(res => {
-          // console.log(res)
-          let {
-            meta: { status }
-          } = res
-          if (status === 200) {
-            // 重新渲染
-            this.getUserList()
-            // 重置表单样式
-            this.$refs.editForm.resetFields()
-            // 关闭模态框
-            this.editDialogVisible = false
-            // 提示消息
-            this.$message.success('修改成功')
-          } else {
-            this.$message.error('服务器异常')
-          }
         })
+        let {
+          meta: { status }
+        } = res
+        if (status === 200) {
+          // 重新渲染
+          this.getUserList()
+          // 重置表单样式
+          this.$refs.editForm.resetFields()
+          // 关闭模态框
+          this.editDialogVisible = false
+          // 提示消息
+          this.$message.success('修改成功')
+        } else {
+          this.$message.error('服务器异常')
+        }
       })
     }
   },
